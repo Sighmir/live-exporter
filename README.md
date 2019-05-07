@@ -11,6 +11,6 @@ Building:
 
     go get github.com/sighmir/live-exporter
     go install github.com/sighmir/live-exporter
-    ./live-exporter -c ./config.yml
+    live-exporter -c ./config.yml
 
 To see all available configuration flags:
