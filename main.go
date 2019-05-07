@@ -56,8 +56,8 @@ func getDir() string {
 
 func getConfPath() string {
 	var config string
-	flag.StringVar(&config, "config", getDir()+"/live-exporter.yml", "Path to the config file.")
-	flag.StringVar(&config, "c", getDir()+"/live-exporter.yml", "Path to the config file.")
+	flag.StringVar(&config, "config", getDir()+"/live_exporter.yml", "Path to the config file.")
+	flag.StringVar(&config, "c", getDir()+"/live_exporter.yml", "Path to the config file.")
 	flag.Parse()
 
 	return config
