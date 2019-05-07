@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"bufio"
 	"encoding/json"
 	"flag"
@@ -45,17 +46,25 @@ type metric struct {
 	Type   string
 }
 
-func getConfPath() *string {
-	var config *string
-	config = flag.String("config", "./live-exporter.yml", "Path to the config file.")
-	if *config == "./live-exporter.yml" {
-		config = flag.String("c", "./live-exporter.yml", "Path to the config file.")
+func getDir() string {
+	dir, err := os.Getwd()
+  if err != nil {
+    log.Fatalf("getDir err    #%v", err)
 	}
+	return dir
+}
+
+func getConfPath() string {
+	var config string
+	flag.StringVar(&config, "config", getDir()+"/live-exporter.yml", "Path to the config file.")
+	flag.StringVar(&config, "c", getDir()+"/live-exporter.yml", "Path to the config file.")
+	flag.Parse()
+
 	return config
 }
 
 func (c *conf) getConf() *conf {
-	yamlFile, err := ioutil.ReadFile(*getConfPath())
+	yamlFile, err := ioutil.ReadFile(getConfPath())
 	if err != nil {
 		log.Printf("getConf err    #%v", err)
 	}
