@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"bufio"
 	"encoding/json"
 	"flag"
@@ -10,6 +9,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -18,7 +18,7 @@ import (
 
 type job struct {
 	Interval int64  `yaml:"interval"`
-	Live     string `yaml:"live"`
+	TCP      string `yaml:"tcp"`
 	Type     string `yaml:"type"`
 	URL      string `yaml:"url"`
 }
@@ -26,7 +26,7 @@ type job struct {
 type conf struct {
 	Interval int64  `yaml:"interval"`
 	Jobs     []job  `yaml:"jobs"`
-	Live     string `yaml:"live"`
+	TCP      string `yaml:"tcp"`
 	Type     string `yaml:"type"`
 }
 
@@ -48,16 +48,16 @@ type metric struct {
 
 func getDir() string {
 	dir, err := os.Getwd()
-  if err != nil {
-    log.Fatalf("getDir err    #%v", err)
+	if err != nil {
+		log.Fatalf("getDir err    #%v", err)
 	}
 	return dir
 }
 
 func getConfPath() string {
 	var config string
-	flag.StringVar(&config, "config", getDir()+"/live_exporter.yml", "Path to the config file.")
-	flag.StringVar(&config, "c", getDir()+"/live_exporter.yml", "Path to the config file.")
+	flag.StringVar(&config, "config", getDir()+"/tcp_exporter.yml", "Path to the config file.")
+	flag.StringVar(&config, "c", getDir()+"/tcp_exporter.yml", "Path to the config file.")
 	flag.Parse()
 
 	return config
@@ -78,8 +78,8 @@ func (c *conf) getConf() *conf {
 }
 
 func (j *job) defaults(c conf) *job {
-	if j.Live == "" {
-		j.Live = c.Live
+	if j.TCP == "" {
+		j.TCP = c.TCP
 	}
 	if j.Interval == 0 {
 		j.Interval = c.Interval
@@ -185,7 +185,7 @@ func (j *job) spawnWorker() (*time.Ticker, chan struct{}) {
 			case <-ticker.C:
 				metrics := getMetrics(j.URL)
 				json := parseMetrics(metrics, j.Type)
-				postMetrics(j.Live, json)
+				postMetrics(j.TCP, json)
 			case <-quit:
 				ticker.Stop()
 				return

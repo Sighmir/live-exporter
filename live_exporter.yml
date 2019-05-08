@@ -1,9 +1,0 @@
-interval: 15
-type: "live_exporter"
-live: "live.monitoring.com:17042"
-
-jobs:
-  - url: "http://localhost:9182/metrics"
-  # type: "my_job"
-  # live: "my-live.monitoring.com:17042"
-  # interval: 60
