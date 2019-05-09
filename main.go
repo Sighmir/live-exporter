@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -121,7 +122,7 @@ func parseMetrics(metrics string, j *job) string {
 
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
-		if len(fields) > 0 {
+		if len(fields) > 1 {
 			if fields[1] == "HELP" {
 				mhelp = strings.Join(fields[3:], " ")
 			} else if fields[1] == "TYPE" {
@@ -134,15 +135,11 @@ func parseMetrics(metrics string, j *job) string {
 				m.Time = time
 				m.Type = mtype
 				m.Help = mhelp
-				m.Value = fields[1]
 
-				fields[0] = strings.Replace(fields[0], "{", " ", 1)
-				fields[0] = strings.Replace(fields[0], "}", " ", 1)
-				subfields := strings.Fields(fields[0])
-				m.Metric = subfields[0]
-
-				if len(subfields) > 1 {
-					labels := strings.Split(subfields[1], "\",")
+				re := regexp.MustCompile("\\{(.*)\\}")
+				match := re.FindStringSubmatch(scanner.Text())
+				if len(match) > 1 {
+					labels := strings.Split(match[1], "\",")
 					for _, la := range labels {
 						li := strings.Split(la, "=")
 						var l label
@@ -150,8 +147,18 @@ func parseMetrics(metrics string, j *job) string {
 						l.Value = strings.Replace(li[1], "\"", "", -1)
 						m.Labels = append(m.Labels, l)
 					}
+
+					re = regexp.MustCompile("\\} (.*)( |$)")
+					match = re.FindStringSubmatch(scanner.Text())
+					m.Value = match[1]
+
+					re = regexp.MustCompile("(.*)\\{")
+					match = re.FindStringSubmatch(scanner.Text())
+					m.Metric = match[1]
 				} else {
 					m.Labels = []label{}
+					m.Value = fields[1]
+					m.Metric = fields[0]
 				}
 
 				parsed = append(parsed, m)
