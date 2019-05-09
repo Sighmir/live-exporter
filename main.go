@@ -17,9 +17,10 @@ import (
 )
 
 type job struct {
+	Name     string `yaml:"name"`
 	Interval int64  `yaml:"interval"`
-	TCP      string `yaml:"tcp"`
 	Type     string `yaml:"type"`
+	TCP      string `yaml:"tcp"`
 	URL      string `yaml:"url"`
 }
 
@@ -31,19 +32,20 @@ type conf struct {
 }
 
 type label struct {
-	Key   string
-	Value string
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 type metric struct {
-	Src    string `json:"__type"`
-	Time   string
-	Date   string
-	Metric string
-	Labels []label
-	Value  string
-	Help   string
-	Type   string
+	JType  string  `json:"__type"`
+	JName  string  `json:"job"`
+	Time   string  `json:"time"`
+	Date   string  `json:"date"`
+	Metric string  `json:"metric"`
+	Labels []label `json:"labels"`
+	Value  string  `json:"value"`
+	Help   string  `json:"help"`
+	Type   string  `json:"type"`
 }
 
 func getDir() string {
@@ -106,7 +108,7 @@ func getMetrics(url string) string {
 	return string(body)
 }
 
-func parseMetrics(metrics string, src string) string {
+func parseMetrics(metrics string, j *job) string {
 	var mhelp string
 	var mtype string
 	var parsed []metric
@@ -126,12 +128,13 @@ func parseMetrics(metrics string, src string) string {
 				mtype = fields[len(fields)-1]
 			} else {
 				var m metric
-				m.Src = src
+				m.JName = j.Name
+				m.JType = j.Type
 				m.Date = date
 				m.Time = time
 				m.Type = mtype
 				m.Help = mhelp
-				m.Value = fields[len(fields)-1]
+				m.Value = fields[1]
 
 				fields[0] = strings.Replace(fields[0], "{", " ", 1)
 				fields[0] = strings.Replace(fields[0], "}", " ", 1)
@@ -186,7 +189,7 @@ func (j *job) spawnWorker() (*time.Ticker, chan struct{}) {
 			select {
 			case <-ticker.C:
 				metrics := getMetrics(j.URL)
-				json := parseMetrics(metrics, j.Type)
+				json := parseMetrics(metrics, j)
 				postMetrics(j.TCP, json)
 			case <-quit:
 				ticker.Stop()
