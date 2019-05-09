@@ -119,38 +119,40 @@ func parseMetrics(metrics string, src string) string {
 
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
-		if fields[1] == "HELP" {
-			mhelp = strings.Join(fields[3:], " ")
-		} else if fields[1] == "TYPE" {
-			mtype = fields[len(fields)-1]
-		} else {
-			var m metric
-			m.Src = src
-			m.Date = date
-			m.Time = time
-			m.Type = mtype
-			m.Help = mhelp
-			m.Value = fields[len(fields)-1]
-
-			fields[0] = strings.Replace(fields[0], "{", " ", 1)
-			fields[0] = strings.Replace(fields[0], "}", " ", 1)
-			subfields := strings.Fields(fields[0])
-			m.Metric = subfields[0]
-
-			if len(subfields) > 1 {
-				labels := strings.Split(subfields[1], "\",")
-				for _, la := range labels {
-					li := strings.Split(la, "=")
-					var l label
-					l.Key = li[0]
-					l.Value = strings.Replace(li[1], "\"", "", -1)
-					m.Labels = append(m.Labels, l)
-				}
+		if len(fields) > 0 {
+			if fields[1] == "HELP" {
+				mhelp = strings.Join(fields[3:], " ")
+			} else if fields[1] == "TYPE" {
+				mtype = fields[len(fields)-1]
 			} else {
-				m.Labels = []label{}
-			}
+				var m metric
+				m.Src = src
+				m.Date = date
+				m.Time = time
+				m.Type = mtype
+				m.Help = mhelp
+				m.Value = fields[len(fields)-1]
 
-			parsed = append(parsed, m)
+				fields[0] = strings.Replace(fields[0], "{", " ", 1)
+				fields[0] = strings.Replace(fields[0], "}", " ", 1)
+				subfields := strings.Fields(fields[0])
+				m.Metric = subfields[0]
+
+				if len(subfields) > 1 {
+					labels := strings.Split(subfields[1], "\",")
+					for _, la := range labels {
+						li := strings.Split(la, "=")
+						var l label
+						l.Key = li[0]
+						l.Value = strings.Replace(li[1], "\"", "", -1)
+						m.Labels = append(m.Labels, l)
+					}
+				} else {
+					m.Labels = []label{}
+				}
+
+				parsed = append(parsed, m)
+			}
 		}
 	}
 
