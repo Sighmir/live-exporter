@@ -152,7 +152,8 @@ func parseMetrics(metrics string, j *job) string {
 
 					re = regexp.MustCompile("\\} (.*)( |$)")
 					match = re.FindStringSubmatch(scanner.Text())
-					m.Value = match[1]
+					value := strings.Fields(match[1])
+					m.Value = value[0]
 
 					re = regexp.MustCompile("(.*)\\{")
 					match = re.FindStringSubmatch(scanner.Text())
