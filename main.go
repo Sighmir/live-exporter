@@ -32,21 +32,16 @@ type conf struct {
 	Type     string `yaml:"type"`
 }
 
-type label struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
-
 type metric struct {
-	JType  string  `json:"__type"`
-	JName  string  `json:"job"`
-	Time   string  `json:"time"`
-	Date   string  `json:"date"`
-	Metric string  `json:"metric"`
-	Labels []label `json:"labels"`
-	Value  string  `json:"value"`
-	Help   string  `json:"help"`
-	Type   string  `json:"type"`
+	JType  string            `json:"__type"`
+	JName  string            `json:"job"`
+	Time   string            `json:"time"`
+	Date   string            `json:"date"`
+	Metric string            `json:"metric"`
+	Labels map[string]string `json:"labels"`
+	Value  string            `json:"value"`
+	Help   string            `json:"help"`
+	Type   string            `json:"type"`
 }
 
 func getDir() string {
@@ -143,10 +138,7 @@ func parseMetrics(metrics string, j *job) string {
 					for _, la := range labels {
 						li := strings.Split(la, "=")
 						if len(li) > 1 {
-							var l label
-							l.Key = li[0]
-							l.Value = strings.Replace(li[1], "\"", "", -1)
-							m.Labels = append(m.Labels, l)
+							m.Labels[li[0]] = strings.Replace(li[1], "\"", "", -1)
 						}
 					}
 
@@ -159,7 +151,7 @@ func parseMetrics(metrics string, j *job) string {
 					match = re.FindStringSubmatch(scanner.Text())
 					m.Metric = match[1]
 				} else {
-					m.Labels = []label{}
+					m.Labels = make(map[string]string)
 					m.Value = fields[1]
 					m.Metric = fields[0]
 				}
