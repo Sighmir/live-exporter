@@ -142,10 +142,12 @@ func parseMetrics(metrics string, j *job) string {
 					labels := strings.Split(match[1], "\",")
 					for _, la := range labels {
 						li := strings.Split(la, "=")
-						var l label
-						l.Key = li[0]
-						l.Value = strings.Replace(li[1], "\"", "", -1)
-						m.Labels = append(m.Labels, l)
+						if len(li) > 1 {
+							var l label
+							l.Key = li[0]
+							l.Value = strings.Replace(li[1], "\"", "", -1)
+							m.Labels = append(m.Labels, l)
+						}
 					}
 
 					re = regexp.MustCompile("\\} (.*)( |$)")
