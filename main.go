@@ -130,6 +130,7 @@ func parseMetrics(metrics string, j *job) string {
 				m.Time = time
 				m.Type = mtype
 				m.Help = mhelp
+				m.Labels = make(map[string]string)
 
 				re := regexp.MustCompile("\\{(.*)\\}")
 				match := re.FindStringSubmatch(scanner.Text())
@@ -151,7 +152,6 @@ func parseMetrics(metrics string, j *job) string {
 					match = re.FindStringSubmatch(scanner.Text())
 					m.Metric = match[1]
 				} else {
-					m.Labels = make(map[string]string)
 					m.Value = fields[1]
 					m.Metric = fields[0]
 				}
