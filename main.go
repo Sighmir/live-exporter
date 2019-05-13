@@ -59,8 +59,8 @@ func getDir() string {
 
 func getConfPath() string {
 	var config string
-	flag.StringVar(&config, "config", getDir()+"/tcp_exporter.yml", "Path to the config file.")
-	flag.StringVar(&config, "c", getDir()+"/tcp_exporter.yml", "Path to the config file.")
+	flag.StringVar(&config, "config", getDir()+"/tcp_importer.yml", "Path to the config file.")
+	flag.StringVar(&config, "c", getDir()+"/tcp_importer.yml", "Path to the config file.")
 	flag.Parse()
 
 	return config

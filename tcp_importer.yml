@@ -1,5 +1,5 @@
 interval: 15
-type: "tcp_exporter"
+type: "tcp_importer"
 tcp: "tcp.monitoring.com:17042"
 
 jobs:
